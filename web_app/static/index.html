@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích Cổ Phiếu Việt Nam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('/static/evo2.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .output-area {
+            flex: 1;
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 500px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .output-area.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .report-content {
+            white-space: pre-wrap;
+            color: #333;
+        }
+        
+        .report-content h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            10% { opacity: 0.1; }
+        }
+        
+        .ticker-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .ticker-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .ticker-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/static/psi.png" alt="PSI Logo" class="header-logo">
+            <h1>📊 Phân Tích Cổ Phiếu Việt Nam</h1>
+            <p>Hỗ trợ bởi FinRobot & Azure GPT-4o</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="section-title">📝 Yêu Cầu Phân Tích</div>
+                
+                <textarea id="promptInput" placeholder="Chỉnh sửa yêu cầu phân tích tại đây...">Hôm nay là {current_date}.
+
+Phân tích cổ phiếu VPB (VP Bank):
+
+1. Lấy dữ liệu giá 3 tháng gần nhất
+2. Lấy chỉ số tài chính (Financial Ratios) năm gần nhất
+3. Đưa ra nhận xét về:
+   - Xu hướng giá
+   - Định giá (P/E, P/B)
+   - Khả năng sinh lời (ROE, ROA)
+   - Rủi ro tài chính (Debt/Equity)
+4. So sánh với TCB và VCB trong cùng ngành ngân hàng.
+5. Dự báo xu hướng giá trong 1 tháng tới dựa trên phân tích kỹ thuật đơn giản (Moving Averages, RSI).
+6. Đưa ra khuyến nghị đầu tư dựa trên phân tích ở trên.
+7. Kết luận có nên đầu tư vào VPB ở thời điểm hiện tại không, dựa trên phân tích ở trên.
+
+Trả lời bằng tiếng Việt.</textarea>
+                
+                <div class="button-group">
+                    <button class="btn-primary" id="analyzeBtn" onclick="analyzeStock()">
+                        🚀 Phân Tích Cổ Phiếu
+                    </button>
+                    <button class="btn-secondary" onclick="clearAll()">
+                        🗑️ Xóa
+                    </button>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="section-title">📈 Báo Cáo Phân Tích</div>
+                <div class="output-area empty" id="outputArea">
+                    <p>Kết quả phân tích sẽ hiển thị tại đây...</p>
+                </div>
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="copyReport()">
+                        📋 Sao Chép
+                    </button>
+                    <button class="btn-secondary" onclick="downloadReport()">
+                        💾 Tải Xuống
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Máy Chủ Sẵn Sàng</span>
+            </div>
+            <div id="statusMessage">Sẵn sàng phân tích</div>
+        </div>
+    </div>
+    
+    <script>
+        let currentReport = '';
+        
+        // Load template on page load
+        window.onload = function() {
+            // Replace {current_date} placeholder with actual date
+            const promptInput = document.getElementById('promptInput');
+            const today = new Date();
+            const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+            console.log('Before:', promptInput.value.substring(0, 50));
+            console.log('Formatted date:', formattedDate);
+            promptInput.value = promptInput.value.replace('{current_date}', formattedDate);
+            console.log('After:', promptInput.value.substring(0, 50));
+            if (typeof updateStatus === 'function') {
+                updateStatus('Sẵn sàng phân tích');
+            }
+        };
+        
+        async function analyzeStock() {
+            const promptInput = document.getElementById('promptInput');
+            const outputArea = document.getElementById('outputArea');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            const prompt = promptInput.value.trim();
+            
+            // Extract ticker from prompt (look for common patterns)
+            let ticker = 'Stock';
+            const tickerMatch = prompt.match(/\b([A-Z]{3})\b/);
+            if (tickerMatch) {
+                ticker = tickerMatch[1];
+            }
+            
+            if (!prompt) {
+                alert('Vui lòng nhập yêu cầu phân tích');
+                return;
+            }
+            
+            // Show loading state
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '⏳ Đang phân tích...';
+            outputArea.className = 'output-area';
+            outputArea.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Đang phân tích ${ticker}... Có thể mất 30-60 giây</span>
+                </div>
+            `;
+            updateStatus('Đang phân tích...');
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        ticker: ticker
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Phân tích thất bại');
+                }
+                
+                const data = await response.json();
+                currentReport = data.report;
+                
+                // Display report
+                outputArea.innerHTML = `<div class="report-content">${formatReport(data.report)}</div>`;
+                updateStatus(`Phân tích hoàn tất cho ${ticker}`);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                outputArea.innerHTML = `
+                    <div style="color: #f44336; padding: 20px;">
+                        <h3>❌ Lỗi</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                updateStatus('Phân tích thất bại', true);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '🚀 Phân Tích Cổ Phiếu';
+            }
+        }
+        
+        function formatReport(report) {
+            // Basic markdown-like formatting
+            return report
+                .replace(/###\s+(.+)/g, '<h3>$1</h3>')
+                .replace(/####\s+(.+)/g, '<h4>$1</h4>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '<br><br>');
+        }
+        
+        function copyReport() {
+            if (!currentReport) {
+                alert('Chưa có báo cáo để sao chép');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentReport).then(() => {
+                updateStatus('Đã sao chép báo cáo');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                updateStatus('Không thể sao chép báo cáo', true);
+            });
+        }
+        
+        function downloadReport() {
+            if (!currentReport) {
+                alert('Chưa có báo cáo để tải xuống');
+                return;
+            }
+            
+            // Extract ticker from report or use default
+            let ticker = 'Stock';
+            const tickerMatch = currentReport.match(/([A-Z]{3})/);
+            if (tickerMatch) {
+                ticker = tickerMatch[1];
+            }
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `${ticker}_analysis_${timestamp}.txt`;
+            
+            const blob = new Blob([currentReport], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            updateStatus('Đã tải xuống báo cáo');
+        }
+        
+        function clearAll() {
+            document.getElementById('promptInput').value = '';
+            document.getElementById('outputArea').className = 'output-area empty';
+            document.getElementById('outputArea').innerHTML = '<p>Kết quả phân tích sẽ hiển thị tại đây...</p>';
+            currentReport = '';
+            updateStatus('Đã xóa');
+        }
+        
+        function updateStatus(message, isError = false) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.style.color = isError ? '#f44336' : '#666';
+        }
+        
+        // Allow Enter key to trigger analysis (Ctrl+Enter)
+        document.getElementById('promptInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                analyzeStock();
+            }
+        });
+    </script>
+</body>
+</html>

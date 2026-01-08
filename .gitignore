@@ -15,3 +15,5 @@ projects/
 dist/
 tmp/
 filings/
+venv/
+OAI_CONFIG_LIST
